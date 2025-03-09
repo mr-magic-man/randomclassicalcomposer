@@ -113,3 +113,4 @@ function updateAudioPlayer(audioSample) {
         audioPlayer.innerHTML = '<p>No audio sample available</p>';
     }
 }
+
