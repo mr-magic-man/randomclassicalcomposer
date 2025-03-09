@@ -1,6 +1,10 @@
 const composers = [
-    "Johann Sebastian Bach", "Wolfgang Amadeus Mozart", "Ludwig van Beethoven",
-    "Frédéric Chopin", "Pyotr Ilyich Tchaikovsky", "Claude Debussy"
+    "Johann Sebastian Bach", 
+    "Wolfgang Amadeus Mozart", 
+    "Ludwig van Beethoven",
+    "Frédéric Chopin", 
+    "Pyotr Ilyich Tchaikovsky", 
+    "Claude Debussy"
 ];
 
 document.getElementById('generate-btn').addEventListener('click', generateComposer);
@@ -17,10 +21,17 @@ function generateComposer() {
         .then(data => {
             const pages = data.query.pages;
             const pageId = Object.keys(pages)[0];
-            const extract = pages[pageId].extract;
-            const imageUrl = pages[pageId].thumbnail ? pages[pageId].thumbnail.source : '';
+            const page = pages[pageId];
 
-            // Fetch additional composer details (this would require a separate API or database)
+            if (!page || page.missing) {
+                composerInfo.innerHTML = 'Composer information not found.';
+                return;
+            }
+
+            const extract = page.extract || 'No summary available.';
+            const imageUrl = page.thumbnail ? page.thumbnail.source : 'https://via.placeholder.com/300?text=No+Image+Available';
+
+            // Fetch additional composer details (hardcoded for now)
             const composerDetails = getComposerDetails(randomComposer);
 
             composerInfo.innerHTML = `
@@ -45,22 +56,27 @@ function generateComposer() {
 }
 
 function getComposerDetails(composer) {
-    // This function would ideally fetch data from a database or API
-    // For demonstration purposes, we'll use hardcoded data
+    // Hardcoded details for demonstration
     const details = {
         "Johann Sebastian Bach": {
-            lifespan: "1685-1750",
+            lifespan: "1685–1750",
             period: "Baroque",
             famousWork: "Brandenburg Concertos",
             audioSample: "https://example.com/bach_sample.mp3"
         },
         "Wolfgang Amadeus Mozart": {
-            lifespan: "1756-1791",
+            lifespan: "1756–1791",
             period: "Classical",
             famousWork: "Eine kleine Nachtmusik",
             audioSample: "https://example.com/mozart_sample.mp3"
         },
-        // Add details for other composers...
+        "Ludwig van Beethoven": {
+            lifespan: "1770–1827",
+            period: "Classical/Romantic",
+            famousWork: "Symphony No. 9",
+            audioSample: "https://example.com/beethoven_sample.mp3"
+        },
+        // Add more composers here...
     };
     return details[composer] || {
         lifespan: "Unknown",
