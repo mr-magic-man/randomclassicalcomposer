@@ -1,21 +1,60 @@
 const COMPOSERS = [
-    { name: "Johann Sebastian Bach", videoId: "ho9rZjlsyYY" },
-    { name: "Wolfgang Amadeus Mozart", videoId: "Rb0UmrCXxVA" },
-    { name: "Ludwig van Beethoven", videoId: "fOk8Tm815lE" },
-    { name: "Frédéric Chopin", videoId: "wygy721nzRc" },
-    { name: "Pyotr Ilyich Tchaikovsky", videoId: "oO58lNdEvnk" },
-    { name: "Claude Debussy", videoId: "OUx6ZY60uiI" },
-    { name: "Johannes Brahms", videoId: "3X9LvC9WkkQ" },
-    { name: "Giuseppe Verdi", videoId: "8A3zetSuYRg" },
-    { name: "Richard Wagner", videoId: "V92OBNsQgxU" },
-    { name: "Antonio Vivaldi", videoId: "GRxofEmo3HA" }
+    "Johann Sebastian Bach", "Wolfgang Amadeus Mozart",
+    "Ludwig van Beethoven", "Frédéric Chopin",
+    "Pyotr Ilyich Tchaikovsky", "Claude Debussy",
+    "Johannes Brahms", "Giuseppe Verdi",
+    "Richard Wagner", "Antonio Vivaldi"
 ];
+
+const API_KEY = 'YOUR_YOUTUBE_API_KEY'; // Replace with your actual YouTube API key
 
 document.getElementById('generate-btn').addEventListener('click', generateComposer);
 
 async function generateComposer() {
     const container = document.getElementById('composer-info');
     container.innerHTML = '<div class="loading">Loading...</div>';
+
+    try {
+        const composer = COMPOSERS[Math.floor(Math.random() * COMPOSERS.length)];
+        const wikiData = await fetchWikipediaData(composer);
+        const videoId = await searchYouTubeVideo(composer);
+
+        container.innerHTML = `
+            <img class="composer-image" src="${wikiData.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${composer}">
+            <div class="composer-details">
+                <h2>${composer}</h2>
+                ${wikiData.birth ? `<p><strong>Born:</strong> ${wikiData.birth}</p>` : ''}
+                ${wikiData.death ? `<p><strong>Died:</strong> ${wikiData.death} (Age ${wikiData.age})</p>` : ''}
+                ${wikiData.summary ? `<p>${wikiData.summary}</p>` : ''}
+                <div id="video-player">
+                    <h3>Watch a Performance:</h3>
+                    <iframe 
+                        width="560" 
+                        height="315" 
+                        src="https://www.youtube.com/embed/${videoId}" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        container.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
+        console.error(error);
+    }
+}
+
+async function searchYouTubeVideo(composer) {
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(composer + " composition")}&type=video&key=${API_KEY}`);
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+        return data.items[0].id.videoId;
+    }
+    throw new Error('No videos found');
+}
+
+// ... (rest of the code remains the same)
 
     try {
         // Select a random composer
