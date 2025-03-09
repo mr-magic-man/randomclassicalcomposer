@@ -1,6 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-const cheerio = require('cheerio');
+const path = require('path');
 const app = express();
 const port = 3000;
 
@@ -12,12 +12,17 @@ const composers = [
     // Add more composers as needed
 ];
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/random-composer', async (req, res) => {
     try {
         const randomComposer = composers[Math.floor(Math.random() * composers.length)];
         const composerData = await fetchComposerInfo(randomComposer);
         res.json(composerData);
     } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ error: 'Failed to fetch composer information' });
     }
 });
