@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Classical Composer Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #composer-info {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Random Classical Composer Generator</h1>
+    <p>Click the button below to get a random composer from the Baroque to Late Romantic periods!</p>
+    <button onclick="generateComposer()">Generate Composer</button>
+    <div id="composer-info"></div>
+
+    <script>
+        function generateComposer() {
+            fetch('/random-composer')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('composer-info').innerHTML = `
+                        <strong>${data.name}</strong><br>
+                        ${data.extract}
+                    `;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
