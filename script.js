@@ -27,7 +27,7 @@ async function generateComposer() {
             </div>
         `;
 
-        // Fetch audio sample after displaying composer info
+        // Fetch audio sample from Wikimedia Commons or IMSLP
         const audioSample = await findAudioSample(composer);
         updateAudioPlayer(audioSample);
 
@@ -85,19 +85,29 @@ function calculateAge(birth, death) {
 }
 
 async function findAudioSample(composer) {
+    // Try Wikimedia Commons first
     try {
-        const response = await fetch(
-            `https://freemusicarchive.org/api/get/tracks.json?api_key=YOUR_API_KEY&limit=1&artist_name=${encodeURIComponent(composer)}`
+        const commonsResponse = await fetch(
+            `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(composer)}+filetype:audio&format=json&origin=*`
         );
-        const data = await response.json();
-        if (data.dataset && data.dataset.length > 0) {
+        const commonsData = await commonsResponse.json();
+        if (commonsData.query && commonsData.query.search.length > 0) {
+            const fileTitle = commonsData.query.search[0].title;
             return {
-                title: data.dataset[0].track_title,
-                url: data.dataset[0].track_url
+                title: fileTitle.replace(/_/g, ' '),
+                url: `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileTitle)}`
             };
         }
-        return null;
-    } catch {
+    } catch (error) {
+        console.error("Error fetching from Wikimedia Commons:", error);
+    }
+
+    // Fallback to IMSLP
+    try {
+        const imslpUrl = `https://imslp.org/wiki/Special:Search?search=${encodeURIComponent(composer)}&go=Go`;
+        return { title: `Search IMSLP for ${composer}`, url: imslpUrl };
+    } catch (error) {
+        console.error("Error fetching from IMSLP:", error);
         return null;
     }
 }
@@ -111,6 +121,7 @@ function updateAudioPlayer(audioSample) {
                 <source src="${audioSample.url}" type="audio/mpeg">
                 Your browser does not support audio
             </audio>
+            <p><a href="${audioSample.url}" target="_blank">Download or view full file</a></p>
         `;
     } else {
         audioPlayer.innerHTML = '<p>No audio sample available</p>';
