@@ -27,8 +27,8 @@ async function generateComposer() {
             </div>
         `;
 
-        // Fetch audio sample from IMSLP
-        const audioSample = await findAudioSampleIMSLP(composer);
+        // Fetch audio sample from Musopen
+        const audioSample = await findAudioSampleMusopen(composer);
         updateAudioPlayer(audioSample);
 
     } catch (error) {
@@ -84,19 +84,19 @@ function calculateAge(birth, death) {
     return age;
 }
 
-async function findAudioSampleIMSLP(composer) {
+async function findAudioSampleMusopen(composer) {
     try {
-        // Construct an IMSLP search URL for the composer
-        const searchUrl = `https://imslp.org/wiki/Special:Search?search=${encodeURIComponent(composer)}&go=Go`;
+        // Construct a Musopen search URL for the composer
+        const searchUrl = `https://musopen.org/music/search/?q=${encodeURIComponent(composer)}`;
         
         // Return the search URL as a placeholder for now
         return {
-            title: `Search IMSLP for ${composer}`,
+            title: `Search Musopen for ${composer}`,
             url: searchUrl
         };
         
     } catch (error) {
-        console.error("Error fetching audio sample from IMSLP:", error);
+        console.error("Error fetching audio sample from Musopen:", error);
         return null;
     }
 }
@@ -107,7 +107,7 @@ function updateAudioPlayer(audioSample) {
     if (audioSample) {
         audioPlayer.innerHTML = `
             <p><strong>Featured Work:</strong> ${audioSample.title}</p>
-            <a href="${audioSample.url}" target="_blank">Listen on IMSLP</a>
+            <a href="${audioSample.url}" target="_blank">Listen on Musopen</a>
         `;
     } else {
         audioPlayer.innerHTML = '<p>No audio sample available</p>';
