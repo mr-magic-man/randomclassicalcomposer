@@ -89,10 +89,12 @@ async function findAudioSample(composer) {
         // Search for audio files related to the composer on Wikimedia Commons
         const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(composer)}+filetype:audio&format=json&origin=*`;
         
+        console.log(`Searching for audio files: ${searchUrl}`); // Debugging log
         const response = await fetch(searchUrl);
         const data = await response.json();
         
         if (data.query && data.query.search.length > 0) {
+            console.log("Search results:", data.query.search); // Debugging log
             const fileTitle = data.query.search[0].title;
             return {
                 title: fileTitle.replace(/_/g, ' '),
@@ -100,6 +102,7 @@ async function findAudioSample(composer) {
             };
         }
         
+        console.warn("No audio files found for:", composer); // Debugging log
         return null; // No audio sample found
     } catch (error) {
         console.error("Error fetching audio sample from Wikimedia Commons:", error);
