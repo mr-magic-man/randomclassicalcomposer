@@ -22,7 +22,6 @@ async function generateComposer() {
                 <h2>${composer}</h2>
                 ${wikiData.birth ? `<p><strong>Born:</strong> ${wikiData.birth}</p>` : ''}
                 ${wikiData.death ? `<p><strong>Died:</strong> ${wikiData.death} (Age ${wikiData.age})</p>` : ''}
-                ${wikiData.period ? `<p><strong>Period:</strong> ${wikiData.period}</p>` : ''}
                 ${wikiData.summary ? `<p>${wikiData.summary}</p>` : ''}
                 <div id="audio-player">Loading audio sample...</div>
             </div>
@@ -40,7 +39,7 @@ async function generateComposer() {
 
 async function fetchWikipediaData(composer) {
     const response = await fetch(
-        `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|revisions|categories&exintro=1&explaintext=1&rvprop=content&titles=${encodeURIComponent(composer)}&pithumbsize=300&origin=*`
+        `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|revisions&exintro=1&explaintext=1&rvprop=content&titles=${encodeURIComponent(composer)}&pithumbsize=300&origin=*`
     );
     const data = await response.json();
     const page = Object.values(data.query.pages)[0];
@@ -48,8 +47,7 @@ async function fetchWikipediaData(composer) {
     return {
         image: page.thumbnail?.source,
         summary: getFirstThreeSentences(page.extract),
-        ...extractBioData(page.revisions[0]['*']),
-        period: extractHistoricalPeriod(page.revisions[0]['*'])
+        ...extractBioData(page.revisions[0]['*'])
     };
 }
 
@@ -84,24 +82,6 @@ function calculateAge(birth, death) {
         age--;
     }
     return age;
-}
-
-function extractHistoricalPeriod(wikiText) {
-    const periodMap = {
-        'Baroque': /baroque/i,
-        'Classical': /classical/i,
-        'Romantic': /romantic/i,
-        'Impressionist': /impressionist/i,
-        'Neoclassical': /neoclassical/i
-    };
-
-    for (const [period, regex] of Object.entries(periodMap)) {
-        if (regex.test(wikiText)) {
-            return period;
-        }
-    }
-
-    return 'Unknown Period';
 }
 
 async function findAudioSample(composer) {
