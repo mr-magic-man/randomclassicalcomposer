@@ -27,7 +27,7 @@ async function generateComposer() {
             </div>
         `;
 
-        // Fetch audio sample from Wikimedia Commons or IMSLP
+        // Fetch audio sample from Wikimedia Commons
         const audioSample = await findAudioSample(composer);
         updateAudioPlayer(audioSample);
 
@@ -85,41 +85,37 @@ function calculateAge(birth, death) {
 }
 
 async function findAudioSample(composer) {
-    // Try Wikimedia Commons first
     try {
-        const commonsResponse = await fetch(
-            `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(composer)}+filetype:audio&format=json&origin=*`
-        );
-        const commonsData = await commonsResponse.json();
-        if (commonsData.query && commonsData.query.search.length > 0) {
-            const fileTitle = commonsData.query.search[0].title;
+        // Search for audio files related to the composer on Wikimedia Commons
+        const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(composer)}+filetype:audio&format=json&origin=*`;
+        
+        const response = await fetch(searchUrl);
+        const data = await response.json();
+        
+        if (data.query && data.query.search.length > 0) {
+            const fileTitle = data.query.search[0].title;
             return {
                 title: fileTitle.replace(/_/g, ' '),
                 url: `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileTitle)}`
             };
         }
+        
+        return null; // No audio sample found
     } catch (error) {
-        console.error("Error fetching from Wikimedia Commons:", error);
-    }
-
-    // Fallback to IMSLP
-    try {
-        const imslpUrl = `https://imslp.org/wiki/Special:Search?search=${encodeURIComponent(composer)}&go=Go`;
-        return { title: `Search IMSLP for ${composer}`, url: imslpUrl };
-    } catch (error) {
-        console.error("Error fetching from IMSLP:", error);
+        console.error("Error fetching audio sample from Wikimedia Commons:", error);
         return null;
     }
 }
 
 function updateAudioPlayer(audioSample) {
     const audioPlayer = document.getElementById('audio-player');
+    
     if (audioSample) {
         audioPlayer.innerHTML = `
             <p><strong>Featured Work:</strong> ${audioSample.title}</p>
             <audio controls>
                 <source src="${audioSample.url}" type="audio/mpeg">
-                Your browser does not support audio
+                Your browser does not support the audio element.
             </audio>
             <p><a href="${audioSample.url}" target="_blank">Download or view full file</a></p>
         `;
