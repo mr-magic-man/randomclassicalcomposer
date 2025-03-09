@@ -47,10 +47,15 @@ async function fetchWikipediaData(composer) {
     
     return {
         image: page.thumbnail?.source,
-        summary: page.extract,
+        summary: getFirstSentence(page.extract),
         ...extractBioData(page.revisions[0]['*']),
         period: extractHistoricalPeriod(page.revisions[0]['*'])
     };
+}
+
+function getFirstSentence(text) {
+    const sentences = text.split('.').filter(sentence => sentence.trim().length > 0);
+    return sentences.length > 0 ? sentences[0] + '.' : 'No summary available';
 }
 
 function extractBioData(wikiText) {
@@ -102,7 +107,7 @@ function extractHistoricalPeriod(wikiText) {
 async function findAudioSample(composer) {
     try {
         const response = await fetch(
-            `https://freemusicarchive.org/api/get/tracks.json?api_key=60BLHNQCAOUFPIBZ&limit=1&artist_name=${encodeURIComponent(composer)}`
+            `https://freemusicarchive.org/api/get/tracks.json?api_key=YOUR_API_KEY&limit=1&artist_name=${encodeURIComponent(composer)}`
         );
         const data = await response.json();
         if (data.dataset && data.dataset.length > 0) {
