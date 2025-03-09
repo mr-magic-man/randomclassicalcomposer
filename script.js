@@ -27,8 +27,8 @@ async function generateComposer() {
             </div>
         `;
 
-        // Fetch audio sample from Wikimedia Commons
-        const audioSample = await findAudioSample(composer);
+        // Fetch audio sample from IMSLP
+        const audioSample = await findAudioSampleIMSLP(composer);
         updateAudioPlayer(audioSample);
 
     } catch (error) {
@@ -84,28 +84,19 @@ function calculateAge(birth, death) {
     return age;
 }
 
-async function findAudioSample(composer) {
+async function findAudioSampleIMSLP(composer) {
     try {
-        // Search for audio files related to the composer on Wikimedia Commons
-        const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(composer)}+filetype:audio&format=json&origin=*`;
+        // Construct an IMSLP search URL for the composer
+        const searchUrl = `https://imslp.org/wiki/Special:Search?search=${encodeURIComponent(composer)}&go=Go`;
         
-        console.log(`Searching for audio files: ${searchUrl}`); // Debugging log
-        const response = await fetch(searchUrl);
-        const data = await response.json();
+        // Return the search URL as a placeholder for now
+        return {
+            title: `Search IMSLP for ${composer}`,
+            url: searchUrl
+        };
         
-        if (data.query && data.query.search.length > 0) {
-            console.log("Search results:", data.query.search); // Debugging log
-            const fileTitle = data.query.search[0].title;
-            return {
-                title: fileTitle.replace(/_/g, ' '),
-                url: `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(fileTitle)}`
-            };
-        }
-        
-        console.warn("No audio files found for:", composer); // Debugging log
-        return null; // No audio sample found
     } catch (error) {
-        console.error("Error fetching audio sample from Wikimedia Commons:", error);
+        console.error("Error fetching audio sample from IMSLP:", error);
         return null;
     }
 }
@@ -116,11 +107,7 @@ function updateAudioPlayer(audioSample) {
     if (audioSample) {
         audioPlayer.innerHTML = `
             <p><strong>Featured Work:</strong> ${audioSample.title}</p>
-            <audio controls>
-                <source src="${audioSample.url}" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
-            <p><a href="${audioSample.url}" target="_blank">Download or view full file</a></p>
+            <a href="${audioSample.url}" target="_blank">Listen on IMSLP</a>
         `;
     } else {
         audioPlayer.innerHTML = '<p>No audio sample available</p>';
