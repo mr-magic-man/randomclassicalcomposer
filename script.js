@@ -45,49 +45,6 @@ async function generateComposer() {
     }
 }
 
-async function searchYouTubeVideo(composer) {
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(composer + " composition")}&type=video&key=${API_KEY}`);
-    const data = await response.json();
-    if (data.items && data.items.length > 0) {
-        return data.items[0].id.videoId;
-    }
-    throw new Error('No videos found');
-}
-
-// ... (rest of the code remains the same)
-
-    try {
-        // Select a random composer
-        const composer = COMPOSERS[Math.floor(Math.random() * COMPOSERS.length)];
-        const wikiData = await fetchWikipediaData(composer.name);
-
-        container.innerHTML = `
-            <img class="composer-image" src="${wikiData.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${composer.name}">
-            <div class="composer-details">
-                <h2>${composer.name}</h2>
-                ${wikiData.birth ? `<p><strong>Born:</strong> ${wikiData.birth}</p>` : ''}
-                ${wikiData.death ? `<p><strong>Died:</strong> ${wikiData.death} (Age ${wikiData.age})</p>` : ''}
-                ${wikiData.summary ? `<p>${wikiData.summary}</p>` : ''}
-                <div id="video-player">
-                    <h3>Watch a Performance:</h3>
-                    <iframe 
-                        width="560" 
-                        height="315" 
-                        src="https://www.youtube.com/embed/${composer.videoId}" 
-                        title="${composer.name} Video"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen>
-                    </iframe>
-                </div>
-            </div>
-        `;
-    } catch (error) {
-        container.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
-        console.error(error);
-    }
-}
-
 async function fetchWikipediaData(composer) {
     const response = await fetch(
         `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts|pageimages|revisions&exintro=1&explaintext=1&rvprop=content&titles=${encodeURIComponent(composer)}&pithumbsize=300&origin=*`
@@ -135,3 +92,20 @@ function calculateAge(birth, death) {
     return age;
 }
 
+async function searchYouTubeVideo(composer) {
+    try {
+        // Search for a video on YouTube using the composer's name and "composition"
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(composer + " composition")}&type=video&key=${API_KEY}`);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+            return data.items[0].id.videoId; // Return the first video ID
+        }
+        
+        throw new Error('No videos found');
+        
+    } catch (error) {
+        console.error("Error fetching YouTube video:", error);
+        throw error; // Re-throw the error to be handled in generateComposer
+    }
+}
