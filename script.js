@@ -6,7 +6,7 @@ const COMPOSERS = [
     "Richard Wagner", "Antonio Vivaldi"
 ];
 
-const API_KEY = 'AIzaSyA0dJTwSy9-gHbk4f9QXuRlUozzffWJEFY'; // Replace with your actual YouTube API key
+const API_KEY = AIzaSyA0dJTwSy9-gHbk4f9QXuRlUozzffWJEFY; // Replace with your actual YouTube API key
 
 document.getElementById('generate-btn').addEventListener('click', generateComposer);
 
