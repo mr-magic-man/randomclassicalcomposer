@@ -47,15 +47,15 @@ async function fetchWikipediaData(composer) {
     
     return {
         image: page.thumbnail?.source,
-        summary: getFirstSentence(page.extract),
+        summary: getFirstThreeSentences(page.extract),
         ...extractBioData(page.revisions[0]['*']),
         period: extractHistoricalPeriod(page.revisions[0]['*'])
     };
 }
 
-function getFirstSentence(text) {
+function getFirstThreeSentences(text) {
     const sentences = text.split('.').filter(sentence => sentence.trim().length > 0);
-    return sentences.length > 0 ? sentences[0] + '.' : 'No summary available';
+    return sentences.slice(0, 3).map(sentence => sentence + '.').join(' ');
 }
 
 function extractBioData(wikiText) {
@@ -136,4 +136,3 @@ function updateAudioPlayer(audioSample) {
         audioPlayer.innerHTML = '<p>No audio sample available</p>';
     }
 }
-
