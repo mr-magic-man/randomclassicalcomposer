@@ -27,24 +27,6 @@
     <button id="generate-btn">Generate Composer</button>
     <div id="composer-info"></div>
 
-    <script>
-        document.getElementById('generate-btn').addEventListener('click', generateComposer);
-
-        function generateComposer() {
-            document.getElementById('composer-info').innerHTML = 'Loading...';
-            fetch('/random-composer')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('composer-info').innerHTML = `
-                        <strong>${data.name}</strong><br>
-                        ${data.extract}
-                    `;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('composer-info').innerHTML = 'Failed to fetch composer information.';
-                });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
